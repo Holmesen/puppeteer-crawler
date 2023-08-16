@@ -2,13 +2,16 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 
 (async () => {
-  const browser = await puppeteer.launch({
-    executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-    headless: false,
-  });
+  // const browser = await puppeteer.launch({
+  //   executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+  //   headless: false,
+  // });
 
   // await getTitle(browser);
-  await gotoMenuPage(browser, { link: 'https://www.colabug.com/favorites/image-website/' });
+  // await gotoMenuPage(browser, { link: 'https://www.colabug.com/favorites/image-website/' });
+
+  // const page = await browser.newPage();
+  // await handleDetail(page, 'https://www.colabug.com/sites/14385/')
 
   // await browser.close();
 })();
@@ -132,4 +135,36 @@ async function outputFile(result, pageNum) {
       console.log('Output file created successfully.');
     }
   });
+}
+
+// 导航详情
+async function handleDetail(page, link) {
+  await page.goto(link, {timeout: 60 * 1000})
+  const ctx = await page.$('#content')
+  if (ctx) {
+    const siteBody = await ctx.$('.site-body')
+    if (siteBody) {
+      const siteName = await siteBody.$eval('.site-name', node => node.innerText)
+      console.log(siteName);
+      const tags = await siteBody.$$eval('.mr-2', nodes => nodes.map(n => n.innerText))
+      console.log(tags);
+    }
+
+    const ctxL = await ctx.$('.content-layout')
+    if (ctxL) {
+      const siteCtx = await ctxL.$('.site-content')
+      if (siteCtx) {
+        const intro = await siteCtx.$eval('.panel-body', node => node.innerText)
+        console.log(intro);
+      }
+    }
+  }
+}
+
+async function wait(s=0) {
+  await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(1)
+    }, s*1000)
+  })
 }
